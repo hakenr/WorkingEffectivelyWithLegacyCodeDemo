@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmailHelper.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Installer.cs">
       <SubType>Component</SubType>
     </Compile>

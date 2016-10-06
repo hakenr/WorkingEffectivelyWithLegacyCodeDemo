@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Chester\Common.cs" />
     <Compile Include="Chester\CustomerService.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Migros\Service.cs" />
     <Compile Include="Model\MigrosData.cs" />
     <Compile Include="Model\Options.cs" />

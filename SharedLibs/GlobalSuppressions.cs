@@ -1,0 +1,22 @@
+﻿// This file is used by Code Analysis to maintain SuppressMessage 
+// attributes that are applied to this project.
+// Project-level suppressions either have no target or are given 
+// a specific target and scoped to a namespace, type, member, etc.
+
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1307:Field 'settingsFolder' must begin with upper-case letter", Justification = "Legacy Code Baseline", Scope = "member", Target = "~F:SharedLibs.Model.Options.settingsFolder")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1500:Curly brackets for multi-line statements must not share line", Justification = "Legacy Code Baseline", Scope = "member", Target = "~M:SharedLibs.Model.Options.getSettingsFile~System.String")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1300:Element 'getSettingsFile' must begin with an uppercase letter", Justification = "Legacy Code Baseline", Scope = "member", Target = "~M:SharedLibs.Model.Options.getSettingsFile~System.String")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1300:Element 'toJson' must begin with an uppercase letter", Justification = "Legacy Code Baseline", Scope = "member", Target = "~M:SharedLibs.Model.Options.toJson~System.String")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Cagri_Aciklamasi")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Cagri_Acilis_Tarih_Saati")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1400:Element 'Cagri_Acilis_Tarih_Saati' must declare an access modifier", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Cagri_Acilis_Tarih_Saati")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Cagri_Durum_Kodu")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Cagri_Ilgilisi")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Cihaz_Seri_No")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Magaza_Kodu")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Magaza_Telefonu")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.Migros_Cagri_No")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1300:Element 'password' must begin with an uppercase letter", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.password")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.password")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1012:Opening curly bracket must be preceded by a space.", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.user")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Build", "SA1300:Element 'user' must begin with an uppercase letter", Justification = "Legacy Code Baseline", Scope = "member", Target = "~P:SharedLibs.Model.MigrosData.user")]
