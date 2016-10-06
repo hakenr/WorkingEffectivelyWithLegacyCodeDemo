@@ -21,6 +21,8 @@ namespace WebApp
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<SQLServerContext, Configuration>());
+			var dbContext = new SQLServerContext();
+			dbContext.Database.Initialize(true);
         }
     }
 }
