@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibs", "SharedLibs\SharedLibs.csproj", "{352EFA4B-2544-4CD0-9DEE-61B18EE2D126}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{036CF75E-8F8B-40AB-A36F-674EC07E5DBF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsForLocalDebugging", "TestsForLocalDebugging\TestsForLocalDebugging.csproj", "{036CF75E-8F8B-40AB-A36F-674EC07E5DBF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{6B800994-05AD-4895-8EF1-92FAFE64FC77}"
 EndProject

@@ -37,7 +37,7 @@ namespace UnitTests
             };
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestGetCustomer()
         {
             CustomerService customerService = new CustomerService();
@@ -49,7 +49,7 @@ namespace UnitTests
             theCustomer = customer;
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestGetEquipments() {
 
             CustomerService customerService = new CustomerService();
@@ -59,7 +59,7 @@ namespace UnitTests
             Assert.AreNotEqual(0, equipments.Length, "there are no equipments");
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestGetEquipment()
         {
 
@@ -72,7 +72,7 @@ namespace UnitTests
             theEquipment = equipments[0];
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestGetServiceCalls() {
 
             CustomerService customerService = new CustomerService();
@@ -82,7 +82,7 @@ namespace UnitTests
             Assert.IsNotNull(serviceCalls);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestCreateCustomerContactPerson() {
 
             Common commonService = new Common();
@@ -99,7 +99,7 @@ namespace UnitTests
             Assert.IsNotNull(createdCustomer);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestCreateCustomerAddress()
         {
 
@@ -124,7 +124,7 @@ namespace UnitTests
             Assert.IsNotNull(createdAddress);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestCreateServiceCall() {
 
             CustomerService customerService = new CustomerService();
