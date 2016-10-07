@@ -14,7 +14,7 @@ using Havit.MigrosChester.Services.Infrastructure;
 
 namespace WebApp.Helpers
 {
-	public class EmailHelper
+	public class EmailHelper : IEmailHelper
 	{
 		private readonly IMailSender mailSender;
 
@@ -88,8 +88,7 @@ namespace WebApp.Helpers
 			}
 
 			// get client
-			var client = CreateSmtpClient();
-			var fromEmailAddress = GetFromEmailAddress(client);
+			var fromEmailAddress = GetFromEmailAddress();
 
 			MailMessage message;
 			if (mail.Template == null)
@@ -109,7 +108,7 @@ namespace WebApp.Helpers
 			}
 
 			// send
-			SendMail(client, message);
+			SendMail(message);
 			mail.IsSent = true;
 			SaveMailChanges(dbContext, mail);
 		}
@@ -135,21 +134,16 @@ namespace WebApp.Helpers
 			dbContext.SaveChanges();
 		}
 
-		protected internal virtual void SendMail(SmtpClient client, MailMessage message)
+		protected internal virtual void SendMail(MailMessage message)
 		{
 			mailSender.SendMailMessage(message);
 		}
 
-		protected internal virtual string GetFromEmailAddress(SmtpClient client)
-		{
-			NetworkCredential credentials = (NetworkCredential)(client.Credentials);
-			return credentials.UserName;
-		}
-
-		protected internal virtual SmtpClient CreateSmtpClient()
+		protected internal virtual string GetFromEmailAddress()
 		{
 			SmtpClient client = new SmtpClient();
-			return client;
+			NetworkCredential credentials = (NetworkCredential)(client.Credentials);
+			return credentials.UserName;
 		}
 
 		protected internal virtual void DoNothing()

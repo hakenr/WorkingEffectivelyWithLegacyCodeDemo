@@ -147,12 +147,7 @@ namespace WebAppTests.Helpers
 				this.DidNothingIndicated = true;
 			}
 
-			protected internal override SmtpClient CreateSmtpClient()
-			{
-				return null;
-			}
-
-			protected internal override string GetFromEmailAddress(SmtpClient client)
+			protected internal override string GetFromEmailAddress()
 			{
 				return FromEmailAddress;
 			}

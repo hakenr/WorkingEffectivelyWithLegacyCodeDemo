@@ -241,8 +241,7 @@ namespace WebAppTests.Helpers
 
 				emailHelperMock.Setup(h => h.LoadMail(MailId, It.IsAny<SQLServerContext>())).Returns(mailToLoad);
 				emailHelperMock.Setup(h => h.GetDbContext()).Returns<SQLServerContext>(null); // default behavioral for non-CallBase mocking
-				emailHelperMock.Setup(h => h.CreateSmtpClient()).Returns<SmtpClient>(null);
-				emailHelperMock.Setup(h => h.GetFromEmailAddress(It.IsAny<SmtpClient>())).Returns(FromEmailAddress);
+				emailHelperMock.Setup(h => h.GetFromEmailAddress()).Returns(FromEmailAddress);
 				emailHelperMock.Setup(h => h.GenerateTemplatedMailMessage(It.IsAny<Mail>())).Returns<MailMessage>(null);
 
 				emailHelperMock.Setup(h => h.SaveMailChanges(It.IsAny<SQLServerContext>(), It.IsAny<Mail>()))
@@ -251,7 +250,6 @@ namespace WebAppTests.Helpers
 				emailHelperMock.Setup(h => h.GenerateTemplatedMailMessage(It.IsAny<Mail>()))
 					.Callback<Mail>((mail) => { MailProvidedToGenerateTemplatedMailMessage = mail; })
 					.Returns<Mail>((mail) => MailMessageGeneratedFromTemplate);
-
 
 				return emailHelperMock;
 			}
