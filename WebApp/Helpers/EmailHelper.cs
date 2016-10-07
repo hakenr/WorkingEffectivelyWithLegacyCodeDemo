@@ -13,90 +13,154 @@ using System.Diagnostics;
 
 namespace WebApp.Helpers
 {
-    public class EmailHelper
-    {
-        public static void Enqueue(String to, String subject, String template, object parameters) {
+	public class EmailHelper
+	{
+		public void Enqueue(String to, String subject, String template, object parameters)
+		{
+			Mail mail = new Mail
+			{
+				To = to,
+				Subject = subject,
+				Template = template,
+				ParametersJSON = JsonConvert.SerializeObject(parameters),
+				IsSent = false
+			};
 
-            SQLServerContext dbContext = new SQLServerContext();
-            Mail mail = new Mail
-            {
-                To = to,
-                Subject = subject,
-                Template = template,
-                ParametersJSON = JsonConvert.SerializeObject(parameters),
-                IsSent = false
-            };
-            dbContext.Mails.Add(mail);
-            dbContext.SaveChanges(); // save first
+			InsertMailToDb(mail);
 
-            if (!Debugger.IsAttached) {
-                BackgroundJob.Enqueue(() => SendMail(mail.MailID));
-            }
-        }
+			var mailId = mail.MailID;
+			EnqueueSendMail(mailId);
+		}
 
-        public static void Enqueue(String to, String subject, String body) {
+		protected virtual void EnqueueSendMail(int mailId)
+		{
+			if (!Debugger.IsAttached)
+			{
+				BackgroundJob.Enqueue(() => SendMail(mailId));
+			}
+		}
 
-            SQLServerContext dbContext = new SQLServerContext();
-            Mail mail = new Mail
-            {
-                To = to,
-                Subject = subject,
-                Body = body,
-                IsSent = false
-            };
-            dbContext.Mails.Add(mail);
-            dbContext.SaveChanges(); // save first
+		protected virtual void InsertMailToDb(Mail mail)
+		{
+			SQLServerContext dbContext = new SQLServerContext();
+			dbContext.Mails.Add(mail);
+			dbContext.SaveChanges(); // save first
+		}
 
-            if (!Debugger.IsAttached) {
-                BackgroundJob.Enqueue(() => SendMail(mail.MailID));
-            }
-        }
+		public void Enqueue(String to, String subject, String body)
+		{
 
-        public static void SendMail(int mailID)
-        {
-            // get entity
-            SQLServerContext dbContext = new SQLServerContext();
-            Mail mail = dbContext.Mails.Find(mailID);
-            if (mail == null) {
-                return;
-            }
+			Mail mail = new Mail
+			{
+				To = to,
+				Subject = subject,
+				Body = body,
+				IsSent = false
+			};
 
-            if (mail.IsSent) {
-                return;
-            }
+			InsertMailToDb(mail);
 
-            // get client
-            SmtpClient client = new SmtpClient();
-            NetworkCredential credentials = (NetworkCredential)(client.Credentials);
-            String from = credentials.UserName;
-            MailMessage message;
+			var mailId = mail.MailID;
+			EnqueueSendMail(mailId);
+		}
 
-            if (mail.Template == null) {
+		public void SendMail(int mailID)
+		{
+			// get entity
+			var dbContext = GetDbContext();
+			var mail = LoadMail(mailID, dbContext);
+			if (mail == null)
+			{
+				DoNothing();
+				return;
+			}
 
-                message = new MailMessage(from, mail.To, mail.Subject, mail.Body);
+			if (mail.IsSent)
+			{
+				DoNothing();
+				return;
+			}
 
-            } else {
-            
-                // fill template parameters
-                DynamicViewBag bag = new DynamicViewBag();
-                Dictionary<String, String> parameters = JsonConvert.DeserializeObject<Dictionary<String, String>>(mail.ParametersJSON);
-                foreach (KeyValuePair<String, String> entry in parameters)
-                {
-                    bag.AddValue(entry.Key, entry.Value);
-                }
+			// get client
+			var client = CreateSmtpClient();
+			var fromEmailAddress = GetFromEmailAddress(client);
 
-                // create mail
-                RazorMailMessageFactory razorMailMessageFactory = new RazorMailMessageFactory();
-                message = razorMailMessageFactory.Create(mail.Template, new { }, bag);
-                message.From = new MailAddress(from);
-                message.To.Add(mail.To);
-                message.Subject = mail.Subject;
-            }
+			MailMessage message;
+			if (mail.Template == null)
+			{
 
-            // send
-            client.Send(message);
-            mail.IsSent = true;
-            dbContext.SaveChanges();
-        }
-    }
+				message = new MailMessage(fromEmailAddress, mail.To, mail.Subject, mail.Body);
+
+			}
+			else
+			{
+
+				// fill template parameters
+				message = GenerateTemplatedMailMessage(mail);
+				message.From = new MailAddress(fromEmailAddress);
+				message.To.Add(mail.To);
+				message.Subject = mail.Subject;
+			}
+
+			// send
+			SendMail(client, message);
+			mail.IsSent = true;
+			SaveMailChanges(dbContext, mail);
+		}
+
+		// TODO: Extract to standalone testable service
+		protected virtual MailMessage GenerateTemplatedMailMessage(Mail mail)
+		{
+			DynamicViewBag bag = new DynamicViewBag();
+			Dictionary<String, String> parameters = JsonConvert.DeserializeObject<Dictionary<String, String>>(mail.ParametersJSON);
+			foreach (KeyValuePair<String, String> entry in parameters)
+			{
+				bag.AddValue(entry.Key, entry.Value);
+			}
+
+			// create mail
+			RazorMailMessageFactory razorMailMessageFactory = new RazorMailMessageFactory();
+			var message = razorMailMessageFactory.Create(mail.Template, new { }, bag);
+			return message;
+		}
+
+		protected virtual void SaveMailChanges(SQLServerContext dbContext, Mail mail)
+		{
+			dbContext.SaveChanges();
+		}
+
+		protected virtual void SendMail(SmtpClient client, MailMessage message)
+		{
+			client.Send(message);
+		}
+
+		protected virtual string GetFromEmailAddress(SmtpClient client)
+		{
+			NetworkCredential credentials = (NetworkCredential)(client.Credentials);
+			return credentials.UserName;
+		}
+
+		protected virtual SmtpClient CreateSmtpClient()
+		{
+			SmtpClient client = new SmtpClient();
+			return client;
+		}
+
+		protected virtual void DoNothing()
+		{
+			Debug.Write("Indication for test. Does nothing ;-)");
+		}
+
+		protected virtual Mail LoadMail(int mailID, SQLServerContext dbContext)
+		{
+			Mail mail = dbContext.Mails.Find(mailID);
+			return mail;
+		}
+
+		protected virtual SQLServerContext GetDbContext()
+		{
+			SQLServerContext dbContext = new SQLServerContext();
+			return dbContext;
+		}
+	}
 }
