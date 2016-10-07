@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using WebApp.Helpers;
 using WebApp.Models;
 
@@ -18,26 +19,28 @@ namespace WebAppTests.Helpers
 		public void EmailHelper_SendMail_MailNotFound_DoesNothing()
 		{
 			// arrange
-			var emailHelper = new TestableEmailHelper(mailToLoad: null);
+			Mail mailToLoad = null;
+			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
 
 			// act
-			emailHelper.SendMail(1);
+			emailHelperMock.Object.SendMail(MailId);
 
 			// assert
-			Assert.IsTrue(emailHelper.DidNothingIndicated);
+			emailHelperMock.Verify(h => h.DoNothing(), Times.Once);
 		}
 
 		[TestMethod]
 		public void EmailHelper_SendMail_MailAlreadySent_DoesNothing()
 		{
 			// arrange
-			var emailHelper = new TestableEmailHelper(mailToLoad: new Mail() { IsSent =  true });
+			Mail mailToLoad = new Mail() { MailID = MailId, IsSent = true };
+			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
 
 			// act
-			emailHelper.SendMail(MailId);
+			emailHelperMock.Object.SendMail(MailId);
 
 			// assert
-			Assert.IsTrue(emailHelper.DidNothingIndicated);
+			emailHelperMock.Verify(h => h.DoNothing(), Times.Once);
 		}
 
 		[TestMethod]
@@ -52,17 +55,21 @@ namespace WebAppTests.Helpers
 				IsSent = false,
 				To = "to@devmail.havit.cz"
 			};
-			var emailHelper = new TestableEmailHelper(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+
+			MailMessage mailSent = null;
+			emailHelperMock.Setup(h => h.SendMail(It.IsAny<SmtpClient>(), It.IsAny<MailMessage>()))
+				.Callback<SmtpClient, MailMessage>((smtpClient, mailMessage) => { mailSent = mailMessage; });
 
 			// act
-			emailHelper.SendMail(MailId);
+			emailHelperMock.Object.SendMail(MailId);
 
 			// assert
-			Assert.IsNotNull(emailHelper.MailMessageSent);
-			Assert.AreEqual(emailHelper.MailMessageSent.Body, mailToLoad.Body);
-			Assert.AreEqual(emailHelper.MailMessageSent.Subject, mailToLoad.Subject);
-			Assert.AreEqual(emailHelper.MailMessageSent.From, FromEmailAddress);
-			Assert.AreEqual(emailHelper.MailMessageSent.To.ToString(), mailToLoad.To);
+			Assert.IsNotNull(mailSent);
+			Assert.AreEqual(mailSent.Body, mailToLoad.Body);
+			Assert.AreEqual(mailSent.Subject, mailToLoad.Subject);
+			Assert.AreEqual(mailSent.From, FromEmailAddress);
+			Assert.AreEqual(mailSent.To.ToString(), mailToLoad.To);
 		}
 
 		[TestMethod]
@@ -79,14 +86,24 @@ namespace WebAppTests.Helpers
 				Template = "TEMPLATE",
 				ParametersJSON = "PARAMETERS"
 			};
-			var emailHelper = new TestableEmailHelper(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+
+			MailMessage mailSent = null;
+			emailHelperMock.Setup(h => h.SendMail(It.IsAny<SmtpClient>(), It.IsAny<MailMessage>()))
+				.Callback<SmtpClient, MailMessage>((smtpClient, mailMessage) => { mailSent = mailMessage; });
+
+			Mail mailProvidedToGenerateTemplatedMailMessage = null;
+			MailMessage mailMessageGeneratedFromTemplate = new MailMessage();
+			emailHelperMock.Setup(h => h.GenerateTemplatedMailMessage(It.IsAny<Mail>()))
+				.Callback<Mail>((mail) => { mailProvidedToGenerateTemplatedMailMessage = mail; })
+				.Returns<Mail>((mail) => mailMessageGeneratedFromTemplate);
 
 			// act
-			emailHelper.SendMail(MailId);
+			emailHelperMock.Object.SendMail(MailId);
 
 			// assert
-			Assert.AreSame(mailToLoad, emailHelper.MailProvidedToGenerateTemplatedMailMessage);
-			Assert.AreSame(emailHelper.MailMessageGeneratedFromTemplate, emailHelper.MailMessageSent);
+			Assert.AreSame(mailToLoad, mailProvidedToGenerateTemplatedMailMessage);
+			Assert.AreSame(mailMessageGeneratedFromTemplate, mailSent);
 		}
 
 		[TestMethod]
@@ -101,76 +118,33 @@ namespace WebAppTests.Helpers
 				IsSent = false,
 				To = "to@devmail.havit.cz"
 			};
-			var emailHelper = new TestableEmailHelper(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+
+			Mail mailSaved = null;
+			emailHelperMock.Setup(h => h.SaveMailChanges(It.IsAny<SQLServerContext>(), It.IsAny<Mail>()))
+				.Callback<SQLServerContext, Mail>((dbContext, mail) => { mailSaved = mail; });
 
 			// act
-			emailHelper.SendMail(MailId);
+			emailHelperMock.Object.SendMail(MailId);
 
 			// assert
-			Assert.AreSame(mailToLoad, emailHelper.MailSaved);
-			Assert.IsTrue(emailHelper.MailSaved.IsSent);
+			Assert.AreSame(mailToLoad, mailSaved);
+			Assert.IsTrue(mailSaved.IsSent);
 		}
 
-		private class TestableEmailHelper : EmailHelper
+		protected virtual Mock<EmailHelper> BuildEmailHelperMock(Mail mailToLoad)
 		{
-			private readonly Mail mailToLoad;
+			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
 
-			public bool DidNothingIndicated { get; private set; }
-			public MailMessage MailMessageSent { get; private set; }
-			public Mail MailProvidedToGenerateTemplatedMailMessage { get; private set; }
-			public Mail MailSaved { get; private set; }
-			public MailMessage MailMessageGeneratedFromTemplate { get; private set; }
+			emailHelperMock.Setup(h => h.LoadMail(MailId, It.IsAny<SQLServerContext>())).Returns(mailToLoad);
+			emailHelperMock.Setup(h => h.GetDbContext()).Returns<SQLServerContext>(null); // default behavioral for non-CallBase mocking
+			emailHelperMock.Setup(h => h.CreateSmtpClient()).Returns<SmtpClient>(null);
+			emailHelperMock.Setup(h => h.GetFromEmailAddress(It.IsAny<SmtpClient>())).Returns(FromEmailAddress);
+			emailHelperMock.Setup(h => h.SendMail(It.IsAny<SmtpClient>(), It.IsAny<MailMessage>())).Verifiable();
+			emailHelperMock.Setup(h => h.SaveMailChanges(It.IsAny<SQLServerContext>(), It.IsAny<Mail>())).Verifiable();
+			emailHelperMock.Setup(h => h.GenerateTemplatedMailMessage(It.IsAny<Mail>())).Returns<MailMessage>(null);
 
-			public TestableEmailHelper(Mail mailToLoad)
-			{
-				this.mailToLoad = mailToLoad;
-			}
-
-			protected override Mail LoadMail(int mailID, SQLServerContext dbContext)
-			{
-				if (mailID == MailId)
-				{
-					return mailToLoad;
-				}
-				return null;
-			}
-
-			protected override SQLServerContext GetDbContext()
-			{
-				return null;
-			}
-
-			protected override void DoNothing()
-			{
-				this.DidNothingIndicated = true;
-			}
-
-			protected override void SendMail(SmtpClient client, MailMessage message)
-			{
-				this.MailMessageSent = message;
-			}
-
-			protected override SmtpClient CreateSmtpClient()
-			{
-				return null;
-			}
-
-			protected override string GetFromEmailAddress(SmtpClient client)
-			{
-				return FromEmailAddress;
-			}
-
-			protected override void SaveMailChanges(SQLServerContext dbContext, Mail mail)
-			{
-				this.MailSaved = mail;
-			}
-
-			protected override MailMessage GenerateTemplatedMailMessage(Mail mail)
-			{
-				this.MailProvidedToGenerateTemplatedMailMessage = mail;
-				this.MailMessageGeneratedFromTemplate = new MailMessage();
-				return MailMessageGeneratedFromTemplate;
-			}
+			return emailHelperMock;
 		}
 	}
 }

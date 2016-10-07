@@ -32,7 +32,7 @@ namespace WebApp.Helpers
 			EnqueueSendMail(mailId);
 		}
 
-		protected virtual void EnqueueSendMail(int mailId)
+		protected internal virtual void EnqueueSendMail(int mailId)
 		{
 			if (!Debugger.IsAttached)
 			{
@@ -109,7 +109,7 @@ namespace WebApp.Helpers
 		}
 
 		// TODO: Extract to standalone testable service
-		protected virtual MailMessage GenerateTemplatedMailMessage(Mail mail)
+		protected internal virtual MailMessage GenerateTemplatedMailMessage(Mail mail)
 		{
 			DynamicViewBag bag = new DynamicViewBag();
 			Dictionary<String, String> parameters = JsonConvert.DeserializeObject<Dictionary<String, String>>(mail.ParametersJSON);
@@ -124,40 +124,40 @@ namespace WebApp.Helpers
 			return message;
 		}
 
-		protected virtual void SaveMailChanges(SQLServerContext dbContext, Mail mail)
+		protected internal virtual void SaveMailChanges(SQLServerContext dbContext, Mail mail)
 		{
 			dbContext.SaveChanges();
 		}
 
-		protected virtual void SendMail(SmtpClient client, MailMessage message)
+		protected internal virtual void SendMail(SmtpClient client, MailMessage message)
 		{
 			client.Send(message);
 		}
 
-		protected virtual string GetFromEmailAddress(SmtpClient client)
+		protected internal virtual string GetFromEmailAddress(SmtpClient client)
 		{
 			NetworkCredential credentials = (NetworkCredential)(client.Credentials);
 			return credentials.UserName;
 		}
 
-		protected virtual SmtpClient CreateSmtpClient()
+		protected internal virtual SmtpClient CreateSmtpClient()
 		{
 			SmtpClient client = new SmtpClient();
 			return client;
 		}
 
-		protected virtual void DoNothing()
+		protected internal virtual void DoNothing()
 		{
 			Debug.Write("Indication for test. Does nothing ;-)");
 		}
 
-		protected virtual Mail LoadMail(int mailID, SQLServerContext dbContext)
+		protected internal virtual Mail LoadMail(int mailID, SQLServerContext dbContext)
 		{
 			Mail mail = dbContext.Mails.Find(mailID);
 			return mail;
 		}
 
-		protected virtual SQLServerContext GetDbContext()
+		protected internal virtual SQLServerContext GetDbContext()
 		{
 			SQLServerContext dbContext = new SQLServerContext();
 			return dbContext;
