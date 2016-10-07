@@ -17,10 +17,21 @@ namespace WebApp.Helpers
 	{
 		public void Enqueue(String to, String subject, String template, object parameters)
 		{
+			EnqueueImpl(to, subject, null, template, parameters);
+		}
+
+		public void Enqueue(String to, String subject, String body)
+		{
+			EnqueueImpl(to, subject, body, template: null, parameters: null);
+		}
+
+		private void EnqueueImpl(string to, string subject, string body, string template, object parameters)
+		{
 			Mail mail = new Mail
 			{
 				To = to,
 				Subject = subject,
+				Body = body,
 				Template = template,
 				ParametersJSON = SerializeParameters(parameters),
 				IsSent = false
@@ -28,8 +39,7 @@ namespace WebApp.Helpers
 
 			InsertMailToDb(mail);
 
-			var mailId = mail.MailID;
-			EnqueueSendMail(mailId);
+			this.EnqueueSendMail(mail.MailID);
 		}
 
 		protected internal virtual string SerializeParameters(object parameters)
@@ -50,23 +60,6 @@ namespace WebApp.Helpers
 			SQLServerContext dbContext = new SQLServerContext();
 			dbContext.Mails.Add(mail);
 			dbContext.SaveChanges(); // save first
-		}
-
-		public void Enqueue(String to, String subject, String body)
-		{
-
-			Mail mail = new Mail
-			{						 
-				To = to,
-				Subject = subject,
-				Body = body,
-				IsSent = false
-			};
-
-			InsertMailToDb(mail);
-
-			var mailId = mail.MailID;
-			EnqueueSendMail(mailId);
 		}
 
 		public void SendMail(int mailID)
