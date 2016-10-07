@@ -16,6 +16,7 @@ using WebApp.Helpers;
 using Newtonsoft.Json;
 
 using Hangfire;
+using Havit.CastleWindsor.WebForms;
 using Havit.MigrosChester.Services.Infrastructure;
 
 namespace WebApp
@@ -25,8 +26,11 @@ namespace WebApp
 	[System.ComponentModel.ToolboxItem(false)]
 	// To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
 	// [System.Web.Script.Services.ScriptService]
-	public class XeroxChester : System.Web.Services.WebService
+	public class XeroxChester : InjectableWebServiceBase
 	{
+		[Inject]
+		public IEmailHelper EmailHelper { get; set; }
+
 		private static readonly object Locker = new object();
 
 		public static String WebServiceName = "Chester Migros Integration Web Service";
@@ -35,32 +39,27 @@ namespace WebApp
 
 		private String cookies;
 
-		// dependencies
-		private readonly EmailHelper emailHelper;
+		//public XeroxChester()
+		//{
+		//	// check config
+		//	if (!File.Exists(Options.getSettingsFile()))
+		//	{
+		//		throw new Exception("settings file missing");
+		//	}
 
-		public XeroxChester()
-		{
-			emailHelper = new EmailHelper(new SmtpMailSender());
+		//	// parse config
+		//	StreamReader reader = new StreamReader(Options.getSettingsFile());
+		//	String contents = reader.ReadToEnd();
+		//	Options = JsonConvert.DeserializeObject<Options>(contents);
 
-			// check config
-			if (!File.Exists(Options.getSettingsFile()))
-			{
-				throw new Exception("settings file missing");
-			}
-
-			// parse config
-			StreamReader reader = new StreamReader(Options.getSettingsFile());
-			String contents = reader.ReadToEnd();
-			Options = JsonConvert.DeserializeObject<Options>(contents);
-
-			Security security = new Security(Options.ChesterSecurityEndpoint);
-			bool result = security.Login(Options.ChesterUsername, Options.ChesterPassword);
-			if (!result)
-			{
-				throw new Exception("Could not login with username: " + Options.ChesterUsername + " and password: ******");
-			}
-			cookies = security.Cookies;
-		}
+		//	Security security = new Security(Options.ChesterSecurityEndpoint);
+		//	bool result = security.Login(Options.ChesterUsername, Options.ChesterPassword);
+		//	if (!result)
+		//	{
+		//		throw new Exception("Could not login with username: " + Options.ChesterUsername + " and password: ******");
+		//	}
+		//	cookies = security.Cookies;
+		//}
 
 		public static String Normalize(String input)
 		{
@@ -206,7 +205,7 @@ namespace WebApp
 				dbCall.Message = e.Message;
 				dbContext.SaveChanges();
 
-				emailHelper.Enqueue(Options.ErrorNotificationEmail, WebServiceName + " CREATE", e.Message);
+				EmailHelper.Enqueue(Options.ErrorNotificationEmail, WebServiceName + " CREATE", e.Message);
 
 				throw;
 			}
@@ -361,7 +360,7 @@ namespace WebApp
 					dbContext.SaveChanges();
 				}
 
-				emailHelper.Enqueue(Options.ErrorNotificationEmail, WebServiceName + " UPDATE", e.Message);
+				EmailHelper.Enqueue(Options.ErrorNotificationEmail, WebServiceName + " UPDATE", e.Message);
 
 				throw;
 			}
@@ -454,7 +453,7 @@ namespace WebApp
 				dbContext.SaveChanges();
 			}
 
-			emailHelper.SendMail(mail.MailID);
+			EmailHelper.SendMail(mail.MailID);
 		}
 
 		public void PrepareAndSendUpdateNotification(int oldServiceCallDBID, int newServiceCallDBID)
@@ -552,7 +551,7 @@ namespace WebApp
 				dbContext.SaveChanges();
 			}
 
-			emailHelper.SendMail(mail.MailID);
+			EmailHelper.SendMail(mail.MailID);
 		}
 
 		private static String ExtractContactPersonName(String cagriIlgilisi)

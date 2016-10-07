@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppTests", "WebAppTests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{0A3EF579-099D-4D35-9D77-650117A45941}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindsorInstallers", "WindsorInstallers\WindsorInstallers.csproj", "{27D497D4-2ED6-40E2-9C30-7FDDB653710F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{0A3EF579-099D-4D35-9D77-650117A45941}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A3EF579-099D-4D35-9D77-650117A45941}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A3EF579-099D-4D35-9D77-650117A45941}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27D497D4-2ED6-40E2-9C30-7FDDB653710F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27D497D4-2ED6-40E2-9C30-7FDDB653710F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27D497D4-2ED6-40E2-9C30-7FDDB653710F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27D497D4-2ED6-40E2-9C30-7FDDB653710F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
