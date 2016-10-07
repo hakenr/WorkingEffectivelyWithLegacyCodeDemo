@@ -22,7 +22,7 @@ namespace WebApp.Helpers
 				To = to,
 				Subject = subject,
 				Template = template,
-				ParametersJSON = JsonConvert.SerializeObject(parameters),
+				ParametersJSON = SerializeParameters(parameters),
 				IsSent = false
 			};
 
@@ -30,6 +30,11 @@ namespace WebApp.Helpers
 
 			var mailId = mail.MailID;
 			EnqueueSendMail(mailId);
+		}
+
+		protected internal virtual string SerializeParameters(object parameters)
+		{
+			return JsonConvert.SerializeObject(parameters);
 		}
 
 		protected internal virtual void EnqueueSendMail(int mailId)
@@ -40,7 +45,7 @@ namespace WebApp.Helpers
 			}
 		}
 
-		protected virtual void InsertMailToDb(Mail mail)
+		protected internal virtual void InsertMailToDb(Mail mail)
 		{
 			SQLServerContext dbContext = new SQLServerContext();
 			dbContext.Mails.Add(mail);
@@ -51,7 +56,7 @@ namespace WebApp.Helpers
 		{
 
 			Mail mail = new Mail
-			{
+			{						 
 				To = to,
 				Subject = subject,
 				Body = body,

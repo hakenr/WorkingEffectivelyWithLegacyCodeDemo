@@ -16,11 +16,107 @@ namespace WebAppTests.Helpers
 		private const string FromEmailAddress = "from@devmail.havit.cz";
 
 		[TestMethod]
+		public void EmailHelper_Enqueue_TemplatedMail_InsertsMailToDb()
+		{
+			// arrange
+			const string to = "to@devmail.havit.cz";
+			const string subject = "FAKE SUBJECT";
+			const string template = "FAKE TEMPLATE";
+			object parameters = new object();
+			const string serializedParameters = "FAKE_PARAMS";
+
+			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
+
+			Mail mailInserted = null;
+			emailHelperMock.Setup(h => h.InsertMailToDb(It.IsAny<Mail>())).Callback<Mail>(mail => { mailInserted = mail; });
+			emailHelperMock.Setup(h => h.SerializeParameters(parameters)).Returns(serializedParameters);
+			emailHelperMock.Setup(h => h.EnqueueSendMail(It.IsAny<int>())).Verifiable();
+
+			// act
+			emailHelperMock.Object.Enqueue(to, subject, template, parameters);
+
+			// assert
+			Assert.IsNotNull(mailInserted);
+			Assert.AreEqual(to, mailInserted.To);
+			Assert.AreEqual(subject, mailInserted.Subject);
+			Assert.AreEqual(template, mailInserted.Template);
+			Assert.AreEqual(serializedParameters, mailInserted.ParametersJSON);
+			Assert.IsFalse(mailInserted.IsSent);
+		}
+
+		[TestMethod]
+		public void EmailHelper_Enqueue_TemplatedMail_EnqueuesSendMail()
+		{
+			// arrange
+			const string to = "to@devmail.havit.cz";
+			const string subject = "FAKE SUBJECT";
+			const string template = "FAKE TEMPLATE";
+			object parameters = new object();
+
+			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
+
+			emailHelperMock.Setup(h => h.InsertMailToDb(It.IsAny<Mail>())).Callback<Mail>(mail => { mail.MailID = MailId; });
+			emailHelperMock.Setup(h => h.SerializeParameters(parameters)).Returns<string>(null);
+			emailHelperMock.Setup(h => h.EnqueueSendMail(MailId)).Verifiable();
+
+			// act
+			emailHelperMock.Object.Enqueue(to, subject, template, parameters);
+
+			// assert
+			emailHelperMock.Verify(h => h.EnqueueSendMail(MailId), Times.Once);
+		}
+
+		[TestMethod]
+		public void EmailHelper_Enqueue_PlainMail_InsertsMailToDb()
+		{
+			// arrange
+			const string to = "to@devmail.havit.cz";
+			const string subject = "FAKE SUBJECT";
+			const string body = "FAKE BODY";
+
+			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
+
+			Mail mailInserted = null;
+			emailHelperMock.Setup(h => h.InsertMailToDb(It.IsAny<Mail>())).Callback<Mail>(mail => { mailInserted = mail; });
+			emailHelperMock.Setup(h => h.EnqueueSendMail(It.IsAny<int>())).Verifiable();
+
+			// act
+			emailHelperMock.Object.Enqueue(to, subject, body);
+
+			// assert
+			Assert.IsNotNull(mailInserted);
+			Assert.AreEqual(to, mailInserted.To);
+			Assert.AreEqual(subject, mailInserted.Subject);
+			Assert.AreEqual(body, mailInserted.Body);
+			Assert.IsFalse(mailInserted.IsSent);
+		}
+
+		[TestMethod]
+		public void EmailHelper_Enqueue_PlainMail_EnqueuesSendMail()
+		{
+			// arrange
+			const string to = "to@devmail.havit.cz";
+			const string subject = "FAKE SUBJECT";
+			const string body = "FAKE BODY";
+
+			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
+
+			emailHelperMock.Setup(h => h.InsertMailToDb(It.IsAny<Mail>())).Callback<Mail>(mail => { mail.MailID = MailId; });
+			emailHelperMock.Setup(h => h.EnqueueSendMail(MailId)).Verifiable();
+
+			// act
+			emailHelperMock.Object.Enqueue(to, subject, body);
+
+			// assert
+			emailHelperMock.Verify(h => h.EnqueueSendMail(MailId), Times.Once);
+		}
+
+		[TestMethod]
 		public void EmailHelper_SendMail_MailNotFound_DoesNothing()
 		{
 			// arrange
 			Mail mailToLoad = null;
-			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock_SendMail(mailToLoad);
 
 			// act
 			emailHelperMock.Object.SendMail(MailId);
@@ -34,7 +130,7 @@ namespace WebAppTests.Helpers
 		{
 			// arrange
 			Mail mailToLoad = new Mail() { MailID = MailId, IsSent = true };
-			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock_SendMail(mailToLoad);
 
 			// act
 			emailHelperMock.Object.SendMail(MailId);
@@ -55,7 +151,7 @@ namespace WebAppTests.Helpers
 				IsSent = false,
 				To = "to@devmail.havit.cz"
 			};
-			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock_SendMail(mailToLoad);
 
 			MailMessage mailSent = null;
 			emailHelperMock.Setup(h => h.SendMail(It.IsAny<SmtpClient>(), It.IsAny<MailMessage>()))
@@ -86,7 +182,7 @@ namespace WebAppTests.Helpers
 				Template = "TEMPLATE",
 				ParametersJSON = "PARAMETERS"
 			};
-			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock_SendMail(mailToLoad);
 
 			MailMessage mailSent = null;
 			emailHelperMock.Setup(h => h.SendMail(It.IsAny<SmtpClient>(), It.IsAny<MailMessage>()))
@@ -118,7 +214,7 @@ namespace WebAppTests.Helpers
 				IsSent = false,
 				To = "to@devmail.havit.cz"
 			};
-			var emailHelperMock = BuildEmailHelperMock(mailToLoad);
+			var emailHelperMock = BuildEmailHelperMock_SendMail(mailToLoad);
 
 			Mail mailSaved = null;
 			emailHelperMock.Setup(h => h.SaveMailChanges(It.IsAny<SQLServerContext>(), It.IsAny<Mail>()))
@@ -132,7 +228,7 @@ namespace WebAppTests.Helpers
 			Assert.IsTrue(mailSaved.IsSent);
 		}
 
-		protected virtual Mock<EmailHelper> BuildEmailHelperMock(Mail mailToLoad)
+		protected virtual Mock<EmailHelper> BuildEmailHelperMock_SendMail(Mail mailToLoad)
 		{
 			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
 
