@@ -10,11 +10,19 @@ using WebApp.Models;
 using Newtonsoft.Json;
 using Hangfire;
 using System.Diagnostics;
+using Havit.MigrosChester.Services.Infrastructure;
 
 namespace WebApp.Helpers
 {
 	public class EmailHelper
 	{
+		private readonly IMailSender mailSender;
+
+		public EmailHelper(IMailSender mailSender)
+		{
+			this.mailSender = mailSender;
+		}
+
 		public void Enqueue(String to, String subject, String template, object parameters)
 		{
 			EnqueueImpl(to, subject, null, template, parameters);
@@ -129,7 +137,7 @@ namespace WebApp.Helpers
 
 		protected internal virtual void SendMail(SmtpClient client, MailMessage message)
 		{
-			client.Send(message);
+			mailSender.SendMailMessage(message);
 		}
 
 		protected internal virtual string GetFromEmailAddress(SmtpClient client)

@@ -325,6 +325,10 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Services\Services.csproj">
+      <Project>{0A3EF579-099D-4D35-9D77-650117A45941}</Project>
+      <Name>Services</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharedLibs\SharedLibs.csproj">
       <Project>{352efa4b-2544-4cd0-9dee-61b18ee2d126}</Project>
       <Name>SharedLibs</Name>

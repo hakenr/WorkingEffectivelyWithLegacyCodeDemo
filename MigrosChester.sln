@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncService", "SyncService\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppTests", "WebAppTests\WebAppTests.csproj", "{71DD6820-369A-4D75-932B-73157B7083EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{0A3EF579-099D-4D35-9D77-650117A45941}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{71DD6820-369A-4D75-932B-73157B7083EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71DD6820-369A-4D75-932B-73157B7083EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71DD6820-369A-4D75-932B-73157B7083EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A3EF579-099D-4D35-9D77-650117A45941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A3EF579-099D-4D35-9D77-650117A45941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A3EF579-099D-4D35-9D77-650117A45941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A3EF579-099D-4D35-9D77-650117A45941}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

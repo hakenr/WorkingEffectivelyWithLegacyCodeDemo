@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using Havit.MigrosChester.Services.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WebApp.Helpers;
 using WebApp.Models;
@@ -18,7 +19,7 @@ namespace WebAppTests.Helpers
 		public void EmailHelper_SendMail_MailNotFound_DoesNothing()
 		{
 			// arrange
-			var emailHelper = new TestableEmailHelper(mailToLoad: null);
+			var emailHelper = new TestableEmailHelper(mailToLoad: null, mailSender: new FakeMailSender());
 
 			// act
 			emailHelper.SendMail(1);
@@ -31,7 +32,7 @@ namespace WebAppTests.Helpers
 		public void EmailHelper_SendMail_MailAlreadySent_DoesNothing()
 		{
 			// arrange
-			var emailHelper = new TestableEmailHelper(mailToLoad: new Mail() { IsSent =  true });
+			var emailHelper = new TestableEmailHelper(mailToLoad: new Mail() { IsSent = true }, mailSender: new FakeMailSender());
 
 			// act
 			emailHelper.SendMail(MailId);
@@ -52,17 +53,18 @@ namespace WebAppTests.Helpers
 				IsSent = false,
 				To = "to@devmail.havit.cz"
 			};
-			var emailHelper = new TestableEmailHelper(mailToLoad);
+			var fakeMailSender = new FakeMailSender();
+			var emailHelper = new TestableEmailHelper(mailToLoad, fakeMailSender);
 
 			// act
 			emailHelper.SendMail(MailId);
 
 			// assert
-			Assert.IsNotNull(emailHelper.MailMessageSent);
-			Assert.AreEqual(emailHelper.MailMessageSent.Body, mailToLoad.Body);
-			Assert.AreEqual(emailHelper.MailMessageSent.Subject, mailToLoad.Subject);
-			Assert.AreEqual(emailHelper.MailMessageSent.From, FromEmailAddress);
-			Assert.AreEqual(emailHelper.MailMessageSent.To.ToString(), mailToLoad.To);
+			Assert.IsNotNull(fakeMailSender.MailMessageSent);
+			Assert.AreEqual(fakeMailSender.MailMessageSent.Body, mailToLoad.Body);
+			Assert.AreEqual(fakeMailSender.MailMessageSent.Subject, mailToLoad.Subject);
+			Assert.AreEqual(fakeMailSender.MailMessageSent.From, FromEmailAddress);
+			Assert.AreEqual(fakeMailSender.MailMessageSent.To.ToString(), mailToLoad.To);
 		}
 
 		[TestMethod]
@@ -79,14 +81,15 @@ namespace WebAppTests.Helpers
 				Template = "TEMPLATE",
 				ParametersJSON = "PARAMETERS"
 			};
-			var emailHelper = new TestableEmailHelper(mailToLoad);
+			var fakeMailSender = new FakeMailSender();
+			var emailHelper = new TestableEmailHelper(mailToLoad, fakeMailSender);
 
 			// act
 			emailHelper.SendMail(MailId);
 
 			// assert
 			Assert.AreSame(mailToLoad, emailHelper.MailProvidedToGenerateTemplatedMailMessage);
-			Assert.AreSame(emailHelper.MailMessageGeneratedFromTemplate, emailHelper.MailMessageSent);
+			Assert.AreSame(emailHelper.MailMessageGeneratedFromTemplate, fakeMailSender.MailMessageSent);
 		}
 
 		[TestMethod]
@@ -101,7 +104,7 @@ namespace WebAppTests.Helpers
 				IsSent = false,
 				To = "to@devmail.havit.cz"
 			};
-			var emailHelper = new TestableEmailHelper(mailToLoad);
+			var emailHelper = new TestableEmailHelper(mailToLoad, new FakeMailSender());
 
 			// act
 			emailHelper.SendMail(MailId);
@@ -111,17 +114,16 @@ namespace WebAppTests.Helpers
 			Assert.IsTrue(emailHelper.MailSaved.IsSent);
 		}
 
-		private class TestableEmailHelper : EmailHelper
+		internal class TestableEmailHelper : EmailHelper
 		{
 			private readonly Mail mailToLoad;
 
 			public bool DidNothingIndicated { get; private set; }
-			public MailMessage MailMessageSent { get; private set; }
 			public Mail MailProvidedToGenerateTemplatedMailMessage { get; private set; }
 			public Mail MailSaved { get; private set; }
 			public MailMessage MailMessageGeneratedFromTemplate { get; private set; }
 
-			public TestableEmailHelper(Mail mailToLoad)
+			public TestableEmailHelper(Mail mailToLoad, IMailSender mailSender) : base(mailSender)
 			{
 				this.mailToLoad = mailToLoad;
 			}
@@ -143,11 +145,6 @@ namespace WebAppTests.Helpers
 			protected internal override void DoNothing()
 			{
 				this.DidNothingIndicated = true;
-			}
-
-			protected internal override void SendMail(SmtpClient client, MailMessage message)
-			{
-				this.MailMessageSent = message;
 			}
 
 			protected internal override SmtpClient CreateSmtpClient()
@@ -172,5 +169,16 @@ namespace WebAppTests.Helpers
 				return MailMessageGeneratedFromTemplate;
 			}
 		}
+
+		internal class FakeMailSender : IMailSender
+		{
+			public MailMessage MailMessageSent { get; private set; }
+
+			public void SendMailMessage(MailMessage mailMessage)
+			{
+				this.MailMessageSent = mailMessage;
+			}
+		}
 	}
+
 }

@@ -72,6 +72,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Services\Services.csproj">
+      <Project>{0a3ef579-099d-4d35-9d77-650117a45941}</Project>
+      <Name>Services</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebApp\WebApp.csproj">
       <Project>{6B800994-05AD-4895-8EF1-92FAFE64FC77}</Project>
       <Name>WebApp</Name>

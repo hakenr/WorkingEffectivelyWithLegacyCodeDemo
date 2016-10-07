@@ -16,6 +16,7 @@ using WebApp.Helpers;
 using Newtonsoft.Json;
 
 using Hangfire;
+using Havit.MigrosChester.Services.Infrastructure;
 
 namespace WebApp
 {
@@ -39,7 +40,7 @@ namespace WebApp
 
 		public XeroxChester()
 		{
-			emailHelper = new EmailHelper();
+			emailHelper = new EmailHelper(new SmtpMailSender());
 
 			// check config
 			if (!File.Exists(Options.getSettingsFile()))
