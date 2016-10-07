@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Mail;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,7 +22,7 @@ namespace WebAppTests.Helpers
 			var emailHelper = new TestableEmailHelper(mailToLoad: null);
 
 			// act
-			emailHelper.SendMail(1);
+			emailHelper.SendMail(MailId);
 
 			// assert
 			Assert.IsTrue(emailHelper.DidNothingIndicated);
@@ -31,7 +32,7 @@ namespace WebAppTests.Helpers
 		public void EmailHelper_SendMail_MailAlreadySent_DoesNothing()
 		{
 			// arrange
-			var emailHelper = new TestableEmailHelper(mailToLoad: new Mail() { IsSent =  true });
+			var emailHelper = new TestableEmailHelper(mailToLoad: new Mail() { MailID = MailId, IsSent =  true });
 
 			// act
 			emailHelper.SendMail(MailId);
@@ -132,6 +133,7 @@ namespace WebAppTests.Helpers
 				{
 					return mailToLoad;
 				}
+				Debug.Fail("Invalid test setup");
 				return null;
 			}
 
