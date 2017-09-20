@@ -233,7 +233,7 @@ namespace WebAppTests.Helpers
 			var emailHelperMock = new Mock<EmailHelper>() { CallBase = true };
 
 			emailHelperMock.Setup(h => h.LoadMail(MailId, It.IsAny<SQLServerContext>())).Returns(mailToLoad);
-			emailHelperMock.Setup(h => h.GetDbContext()).Returns<SQLServerContext>(null); // default behavioral for non-CallBase mocking
+			emailHelperMock.Setup(h => h.GetDbContext()).Returns<SQLServerContext>(null); // default behavior for non-CallBase mocking
 			emailHelperMock.Setup(h => h.CreateSmtpClient()).Returns<SmtpClient>(null);
 			emailHelperMock.Setup(h => h.GetFromEmailAddress(It.IsAny<SmtpClient>())).Returns(FromEmailAddress);
 			emailHelperMock.Setup(h => h.SendMail(It.IsAny<SmtpClient>(), It.IsAny<MailMessage>())).Verifiable();
